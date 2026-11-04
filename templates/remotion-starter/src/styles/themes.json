@@ -1,0 +1,12 @@
+[
+  {"id": "midnight-cyan",  "name": "Midnight Cyan",  "mood": "Modern tech, calm authority",       "bg": "#0A101D", "text": "#F4F7FB", "accent": "#4FC3F7", "hero": "#FFB74D"},
+  {"id": "aurora-violet",  "name": "Aurora Violet",  "mood": "Creative, futuristic, curious",     "bg": "#0F0B1E", "text": "#F5F3FF", "accent": "#8B7CFF", "hero": "#5EEAD4"},
+  {"id": "solar-flare",    "name": "Solar Flare",    "mood": "Energetic, warm, motivating",       "bg": "#140A08", "text": "#FFF4EC", "accent": "#FF7A45", "hero": "#FFD166"},
+  {"id": "emerald-lab",    "name": "Emerald Lab",    "mood": "Science, nature, growth",           "bg": "#07140F", "text": "#ECFDF5", "accent": "#34D399", "hero": "#FDE047"},
+  {"id": "royal-rose",     "name": "Royal Rose",     "mood": "Premium, elegant, storytelling",    "bg": "#0B0F1A", "text": "#F8F5EC", "accent": "#C9A227", "hero": "#FF8FA3"},
+  {"id": "crimson-noir",   "name": "Crimson Noir",   "mood": "Dramatic, history, documentary",    "bg": "#120709", "text": "#FFF1F2", "accent": "#FB7185", "hero": "#FACC15"},
+  {"id": "ocean-teal",     "name": "Ocean Teal",     "mood": "Fresh, trustworthy, explanatory",   "bg": "#06161C", "text": "#E6FBFF", "accent": "#22D3EE", "hero": "#FB923C"},
+  {"id": "graphite-lime",  "name": "Graphite Lime",  "mood": "Bold, startup, high contrast",      "bg": "#121212", "text": "#F5F5F5", "accent": "#A3E635", "hero": "#38BDF8"},
+  {"id": "paper-ink",      "name": "Paper Ink",      "mood": "Light, editorial, book lessons",    "bg": "#F7F4EC", "text": "#14213D", "accent": "#2563EB", "hero": "#C2410C"},
+  {"id": "clean-light",    "name": "Clean Light",    "mood": "Bright, friendly, classroom",       "bg": "#FFFFFF", "text": "#0F172A", "accent": "#0369A1", "hero": "#C2410C"}
+]

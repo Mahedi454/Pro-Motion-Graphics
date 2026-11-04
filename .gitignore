@@ -1,0 +1,41 @@
+# --- Private / user-supplied media (never publish: may be copyrighted or personal) ---
+**/public/media/
+**/public/audio/narration/
+**/public/audio/music/
+**/public/video/
+**/public/images/
+**/public/fonts/
+*.srt
+media.json
+production/
+
+# --- Secrets ---
+.env
+.env.*
+*.pem
+*.key
+
+# --- Build and render output ---
+node_modules/
+out/
+dist/
+build/
+*.mp4
+*.mov
+*.webm
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+
+# --- Editor / OS / tool state ---
+.vscode/
+.idea/
+.claude/
+.DS_Store
+Thumbs.db
+*.log
+
+# Keep the empty public folder in the starter template
+!**/public/.gitkeep

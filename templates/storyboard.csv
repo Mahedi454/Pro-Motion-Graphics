@@ -1,0 +1,3 @@
+scene,start_seconds,end_seconds,kind,label,learning_purpose,visual,narration,on_screen_text,motion,audio,assets
+S01,0,8,hook,,Hook: pose the central question,Central visual metaphor on dark gradient,"What actually happens when ...?",The big question,Slow push-in; kinetic title,Soft pad + single hit,
+S02,8,18,steps,,Show the sequence,Three-step diagram drawing on,"First ... then ... finally ...",Three steps,Staggered node pop; line draws,Light tick per step,example.jpg
