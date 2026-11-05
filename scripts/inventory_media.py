@@ -40,8 +40,22 @@ def probe(path):
         return {}
 
 
-def safe(name):
-    return re.sub(r"[^a-z0-9._-]+", "-", name.lower()).strip("-")
+def image_size(path):
+    """Width/height without ffprobe, using Pillow when it is installed."""
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            return {"width": im.width, "height": im.height}
+    except Exception:
+        return {}
+
+
+def safe(name, index):
+    """ASCII-only file name for public/. Names in other scripts (e.g. Bengali) cannot survive, so they get media-NN."""
+    stem, ext = os.path.splitext(name)
+    stem = re.sub(r"[^a-z0-9._-]+", "-", stem.lower()).strip("-.")
+    ext = re.sub(r"[^a-z0-9.]+", "", ext.lower())
+    return f"{stem or 'media-%02d' % index}{ext}"
 
 
 def main():
@@ -51,6 +65,8 @@ def main():
     ap.add_argument("--copy-to")
     a = ap.parse_args()
 
+    if not os.path.isdir(a.media_dir):
+        raise SystemExit(f"Media folder not found: {a.media_dir}")
     items, used = [], set()
     for d, _, fs in os.walk(a.media_dir):
         for f in sorted(fs):
@@ -62,10 +78,10 @@ def main():
             item = {"file": os.path.relpath(p, a.media_dir).replace("\\", "/"), "kind": kind,
                     "bytes": os.path.getsize(p)}
             if kind != "image" or ext not in {".svg"}:
-                item.update(probe(p))
+                item.update(probe(p) or (image_size(p) if kind == "image" else {}))
             if a.copy_to:
                 os.makedirs(a.copy_to, exist_ok=True)
-                dest = safe(f)
+                dest = safe(f, len(items) + 1)
                 base, ext2 = os.path.splitext(dest)
                 n = 2
                 while dest in used:  # avoid collisions between folders
@@ -78,7 +94,9 @@ def main():
             items.append(item)
 
     with open(a.out, "w", encoding="utf-8") as f:
-        json.dump(items, f, indent=2)
+        json.dump(items, f, indent=2, ensure_ascii=False)
+    if not items:
+        print("WARNING: no image/video/audio files found in", a.media_dir)
     print(f"{len(items)} media files -> {a.out}")
 
 

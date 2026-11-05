@@ -8,7 +8,7 @@ Commands:
   python theme_tools.py palette <image> [<image> ...]     dominant colours of reference images
   python theme_tools.py suggest <image> [<image> ...]     theme JSON entries derived from images
 
-Every theme has exactly four colours: bg, text, accent, hero.
+Every theme has exactly four colours: bg, text, accent, hero (plus a group: light, dark or color).
 Rules checked: text vs bg >= 7:1, accent vs bg >= 3:1, hero vs bg >= 3:1, accent != hero.
 """
 import colorsys
@@ -80,36 +80,61 @@ def cmd_check(path=None):
             f"text {ratio(t['text'], t['bg']):.1f}  accent {ratio(t['accent'], t['bg']):.1f}  "
             f"hero {ratio(t['hero'], t['bg']):.1f}")
         print(("FAIL " if p else "ok   ") + f"{t['id']:<15} " + detail)
-    print(f"{len(themes)} themes, {bad} failing")
+    groups = {g: sum(1 for x in themes if x.get("group") == g) for g in ("light", "dark", "color")}
+    print(f"{len(themes)} themes, {bad} failing; groups: {groups}")
+    if path is None and groups != {"light": 3, "dark": 3, "color": 4}:
+        print("FAIL the built-in library must have exactly 3 light, 3 dark and 4 colour themes")
+        bad += 1
     return 1 if bad else 0
+
+
+ROLES = {
+    "bg": ("Background", "the whole video background, and the caption box behind subtitles"),
+    "text": ("Text", "headlines, body text and captions (always high contrast on the background)"),
+    "accent": ("Accent", "small labels, lines, diagram shapes, step circles, meters and highlights of the current item"),
+    "hero": ("Hero", "the single focal highlight: the key word in a headline, big numbers, the second side of a comparison"),
+}
+GROUP_LABEL = {"light": "LIGHT", "dark": "DARK", "color": "COLOUR"}
+
+
+def readable_on(hex_color):
+    """Black or white, whichever reads better on this colour."""
+    return "#000000" if ratio(hex_color, "#000000") >= ratio(hex_color, "#FFFFFF") else "#FFFFFF"
 
 
 def cmd_preview(path=None, out="themes-preview.html"):
     themes = load(path)
     cards = []
     for i, t in enumerate(themes, 1):
-        sw = "".join(
-            f'<span class="sw" style="background:{t[k]}"><b>{k}</b>{t[k]}</span>' for k in KEYS)
+        edge = f'{t["text"]}59'  # text colour at ~35% opacity: a border that shows on every swatch
+        rows = []
+        for k in KEYS:
+            name, use = ROLES[k]
+            rows.append(
+                f'<div class="row"><span class="sw" style="background:{t[k]};border:2px solid {edge};color:{readable_on(t[k])}">'
+                f'{t[k]}</span><span class="use"><b>{name}</b> - {use}</span></div>')
         cards.append(
-            f'<div class="card" style="background:{t["bg"]};color:{t["text"]}">'
-            f'<div class="n" style="color:{t["accent"]}">THEME {i} &middot; {t["id"]}</div>'
+            f'<div class="card" style="background:{t["bg"]};color:{t["text"]};border:1px solid {edge}">'
+            f'<div class="n" style="color:{t["accent"]}">THEME {i} &middot; {t["id"]}'
+            f'<span class="grp" style="border:1px solid {edge}">{GROUP_LABEL.get(t.get("group", ""), "")}</span></div>'
             f'<h2>Why does <span style="color:{t["hero"]}">gravity</span> bend light?</h2>'
             f'<p class="m">{t["name"]} - {t.get("mood", "")}</p>'
             f'<div class="bar"><i style="background:{t["accent"]}"></i><i style="background:{t["hero"]}"></i></div>'
-            f'<div class="sws">{sw}</div></div>')
+            f'{"".join(rows)}</div>')
     css = (
-        "body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#888;display:grid;"
-        "grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px}"
-        ".card{border-radius:18px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.35)}"
-        "h2{margin:.4em 0;font-size:26px}.n{font-size:12px;letter-spacing:.15em;font-weight:700}"
+        "body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#8a8f98;display:grid;"
+        "grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:18px}"
+        ".card{border-radius:18px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.3)}"
+        "h2{margin:.4em 0;font-size:26px}.n{font-size:12px;letter-spacing:.15em;font-weight:700;display:flex;gap:10px;align-items:center}"
+        ".grp{font-size:10px;padding:2px 8px;border-radius:99px;letter-spacing:.12em}"
         ".m{opacity:.75;margin:0 0 14px}.bar{display:flex;gap:6px;margin-bottom:14px}"
         ".bar i{height:6px;flex:1;border-radius:3px}"
-        ".sws{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}"
-        ".sw{font:11px monospace;padding:10px 6px;border-radius:8px;color:#fff;"
-        "text-shadow:0 0 3px #000;display:flex;flex-direction:column}.sw b{font-size:12px}"
+        ".row{display:flex;gap:12px;align-items:center;margin-bottom:8px}"
+        ".sw{flex:0 0 96px;font:12px ui-monospace,monospace;font-weight:700;text-align:center;padding:14px 4px;border-radius:10px}"
+        ".use{font-size:13px;line-height:1.35;opacity:.92}.use b{font-size:13px}"
     )
-    html = ('<!doctype html><meta charset="utf-8"><title>Video colour themes</title>'
-            f'<style>{css}</style>' + "".join(cards))
+    html = ('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            f'<title>Video colour themes</title><style>{css}</style>' + "".join(cards))
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
     print("Wrote", out)

@@ -13,4 +13,6 @@ Skills in Claude are enabled for the whole account, and the file cannot lock its
 2. In the Project's instructions, write: "Use the pro-motion-graphics skill for video work in this project."
 3. For a hard guarantee, turn the skill off in Settings > Skills when you are not working on videos.
 
-Not bundled: Node.js, Remotion packages (the starter pins versions; run `npm install`), fonts, media, licenses. Python 3 is needed for the helper scripts.
+Bundled: the Remotion starter with 10 colour themes and 49 original sound effects (royalty-free, synthesized).
+
+Not bundled: Node.js, Remotion packages (the starter pins versions; the user runs `npm install`), fonts (loaded from Google Fonts on the first render, so that needs internet), and the user's own media. Python 3 is needed for the helper scripts; Pillow is optional (image colours).

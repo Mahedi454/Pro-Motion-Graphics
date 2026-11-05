@@ -22,7 +22,7 @@ This skill is for use inside a Claude **Project** only (including a Project with
 2. **Accuracy before simplification.** Never distort facts, equations, data, quotations, chronology, or causal relationships to make a scene look attractive.
 3. **One primary idea per scene.** Make the focal point obvious.
 4. **Cinematic restraint.** Use deliberate camera movement, layered composition, controlled lighting, depth, typography, sound, and transitions. Avoid visual noise.
-5. **Automatic execution.** Make reasonable professional decisions and complete all feasible phases without asking for routine approvals.
+5. **Automatic execution.** Make reasonable professional decisions and complete all feasible phases without asking for routine approvals. The only planned stop is the colour-theme choice (Stage 0b).
 6. **Honest delivery.** Never claim a build, preview, asset retrieval, or inspection succeeded unless it did. Never claim a video was rendered: this skill does not deliver an MP4.
 7. **Rights-aware production.** Prefer original graphics and user-supplied assets. Do not use copyrighted music, footage, logos, artwork, or fonts without permission or an appropriate license.
 8. **Reproducibility.** Use deterministic frame-based animation, documented dependencies, and repeatable commands.
@@ -40,7 +40,7 @@ Unless the user specifies otherwise:
 - Square format: 1080×1080, 1:1
 - Engine: Remotion + React + TypeScript
 - Delivery: a ZIP of the complete Remotion project plus manual render instructions (unzip, npm install, render). Claude does NOT render or hand over the final video; the user renders it on their own computer.
-- Audio: narration-led mix; subtle original/licensed music and sound design only when assets exist
+- Audio: narration-led mix; the built-in original sound effects matched to every motion event (Stage 7); music only if the user supplies it or it is licensed
 - Color direction: the theme the user chooses from 10 options (each defined by `bg`, `text`, `accent`, `hero`); see Stage 0b
 - Typography: maximum two primary font families, clear hierarchy, high legibility
 - Motion: purposeful easing, controlled spring motion, layered reveals, cinematic transitions
@@ -56,7 +56,7 @@ Work autonomously by default:
 - Create the production brief, script, storyboard, scene data, and source code.
 - Generate original vector/CSS/SVG graphics where suitable.
 - Use supplied assets when available.
-- Create a preview and inspect it when the environment permits.
+- Inspect still frames of the build when the environment permits (no video render).
 - Fix issues, then package the project as a ZIP with manual render instructions. Do not render or deliver the final MP4.
 - Provide exact output paths and commands.
 
@@ -87,9 +87,19 @@ Preserve existing project work. Do not overwrite important files without inspect
 ### Stage 0b — Colour theme choice (the one required stop)
 
 After the SRT and reference images/videos are read and inspected, and **before building anything**, give the user a choice of **10 colour themes**, then wait for their answer.
-- Every theme has exactly four colours: `bg` (background), `text`, `accent` (primary UI colour), `hero` (the focal highlight: key words, the number, the main shape).
-- Offer 10 themes: up to 3 derived from the reference images (`python scripts/theme_tools.py suggest <images>`, then adjust by eye) plus the rest from `templates/remotion-starter/src/styles/themes.json`. Add any derived themes to that file in the project; each must pass `python scripts/theme_tools.py check`.
-- Show them clearly: a numbered list with name, mood, and the four hex values, and (when files can be created) a preview page from `python scripts/theme_tools.py preview`. Recommend one that fits the topic and images, and say why in one line.
+
+**The 10 themes are balanced: 3 light, 3 dark, 4 colour** (tinted dark backgrounds with a distinct colour mood). Number them exactly as in `themes.json` and in the preview page (1 to 10), list them in numeric order, and tag each one Light, Dark or Colour, so the number the user replies with is unambiguous. The built-in library is in `templates/remotion-starter/src/styles/themes.json`: light = Mint Light, Paper Ink, Clean Light; dark = Midnight Cyan, Crimson Noir, Graphite Lime; colour = Solar Flare, Emerald Lab, Royal Rose, Ocean Teal. If the reference images clearly suggest a palette (`python scripts/theme_tools.py suggest <images>`), you may replace up to 2 entries of the same group in the project's `src/styles/themes.json` with image-derived themes (edit the JSON by hand: `id`, `group`, `name`, `mood`, `bg`, `text`, `accent`, `hero`); keep 10 themes and the 3/3/4 balance, and run `python scripts/theme_tools.py check src/styles/themes.json` on the result.
+
+**Every theme has exactly four colours, and you must explain what each one is used for** (say it in the user's language, in plain words, the first time and briefly for each theme):
+- `bg` (Background): the whole video background and the caption box behind subtitles.
+- `text` (Text): headlines, body text and captions; always high contrast on the background.
+- `accent` (Accent): small labels, lines, diagram shapes, step circles, meters, and the highlight on the current item.
+- `hero` (Hero): the single focal highlight: the key word in a headline, big numbers, the second side of a comparison.
+
+How to present:
+- A numbered list: number, name, group (Light / Dark / Colour), mood, then the four colours with hex codes and their roles, for example: "`#0A101D` background, `#F4F7FB` text, `#4FC3F7` accent (labels, lines, diagrams), `#FFB74D` hero (key words and numbers)". Show each colour's hex so the user can see exactly what they get.
+- When files can be created, also build the preview page with `python scripts/theme_tools.py preview` and give its path. The page shows every theme with bordered swatches and the role of each colour.
+- Recommend one that fits the topic and the images, with a one-line reason.
 - Ask the user to reply with a number. If they do not choose, use your recommended theme and say so.
 - Apply the choice with `python scripts/theme_tools.py set <theme-id> <project>`; all scenes, captions and diagrams take their colours from it. Reference images guide composition and mood; the chosen theme controls the colours.
 
@@ -252,10 +262,10 @@ Deliver what was actually created:
 8. `README-RENDER.md` inside the ZIP: install Node.js, unzip, `npm install`, preview, render, troubleshooting
 9. The ZIP file itself (no MP4)
 
-Build the ZIP with `python scripts/package_project.py <project_dir> --name <video-name>`. It validates the project, fills in `README-RENDER.md` from the project's real settings, and writes `<video-name>.zip`.
+Build the ZIP with `python scripts/package_project.py <project_dir> --name "<Project Name>"`. **The ZIP file and the folder inside it must carry the project name**: the name the user gave the project, or the video's title if none was given (kept in the user's own language and wording, spaces become hyphens). Never use a generic name like `video` or `output`. Example: project "Star Lifecycle" gives `Star-Lifecycle.zip` containing the folder `Star-Lifecycle/`. It validates the project, fills in `README-RENDER.md` from the project's real settings, and writes `<Project-Name>.zip`. Put the brief, script, storyboard, research ledger and asset register in the project's `production/` folder first so they travel inside the ZIP.
 
 Your final message must:
-1. Give the exact path of the ZIP file and say clearly that the video has **not** been rendered.
+1. Give the exact path of the ZIP file (named after the project) and say clearly that the video has **not** been rendered.
 2. Repeat the manual steps in short form so the user does not have to open the guide:
    1. Install Node.js LTS from nodejs.org.
    2. Unzip (Windows: right-click, Extract All; macOS: double-click; terminal: `unzip <name>.zip`).
@@ -273,38 +283,25 @@ Never present source code as a rendered video, and never offer an MP4 as a deliv
 Adapt to the existing project; do not force a rewrite.
 
 ```text
-motion-video/
+<Project-Name>/                    (the ZIP and this folder carry the project name)
 ├── public/
 │   ├── audio/
+│   │   ├── sfx/                   original sound effects (included)
 │   │   ├── narration/
-│   │   ├── music/
-│   │   └── sfx/
-│   ├── images/
-│   ├── video/
-│   └── fonts/
+│   │   └── music/
+│   ├── media/                     the user's reference images and videos
+│   └── fonts/                     optional, for offline fonts
 ├── src/
-│   ├── compositions/
-│   ├── scenes/
-│   ├── components/
-│   │   ├── typography/
-│   │   ├── diagrams/
-│   │   ├── charts/
-│   │   ├── transitions/
-│   │   └── audio/
-│   ├── data/
-│   ├── hooks/
-│   ├── styles/
-│   ├── utils/
-│   ├── Root.tsx
-│   └── index.ts
-├── production/
-│   ├── brief.md
-│   ├── research.md
-│   ├── script.md
-│   ├── storyboard.md
-│   └── qa-report.md
-├── package.json
-└── README.md
+│   ├── audio/                     sfx.generated.ts, config.ts (mute / volume)
+│   ├── components/                Background, KineticText, Captions, MediaFrame, SceneShell, Sfx
+│   ├── data/                      scenes.ts, captions.ts, language.ts (generated from the SRT)
+│   ├── scenes/                    scene templates (hook, concept, stat, steps, compare, recap, media)
+│   ├── styles/                    themes.json, theme.config.ts, tokens.ts, fonts.ts
+│   ├── utils/                     motion.ts, text.ts
+│   └── Main.tsx, Root.tsx, index.ts
+├── production/                    brief, research, script, storyboard, asset register, qa-report
+├── package.json, render.bat, render.sh
+└── README-RENDER.md               added by package_project.py
 ```
 
 ## Response behavior
@@ -350,9 +347,8 @@ Output must look like a modern premium explainer channel, not a slideshow:
 - `scripts/srt_to_storyboard.py input.srt storyboard.csv --captions src/data/captions.ts` — parse the SRT in any language/encoding, group cues into scenes with a draft `kind`, generate caption data and `src/data/language.ts`. Review and improve the draft (kinds, labels, on-screen text in the SRT's language).
 - `scripts/generate_sfx.py` — regenerates the original sound-effect library (already included in the starter; rarely needed).
 - `scripts/theme_tools.py check|preview|set|palette|suggest` — the 10-theme system: validate contrast, make a preview page, apply the chosen theme, extract palettes from reference images.
-- `scripts/package_project.py <project_dir> --name <name>` — build the delivery ZIP with `README-RENDER.md`. Use this instead of rendering.
+- `scripts/package_project.py <project_dir> --name "<Project Name>"` — build the delivery ZIP with `README-RENDER.md`. Use this instead of rendering.
 - `scripts/inventory_media.py <media_dir> --out media.json --copy-to public/media` — list reference images/videos with dimensions/duration (ffprobe if present). It cannot see pixels: you must open the files.
-
 - `scripts/validate_storyboard.py storyboard.csv --fps 30` — validate scene timing (overlaps, gaps, missing narration, frame alignment). Run before coding.
 - `scripts/storyboard_to_scenes.py storyboard.csv src/data/scenes.ts --fps 30` — generate typed scene data so composition length always matches the storyboard.
 - `templates/remotion-starter/` — Remotion project with animated background, kinetic text, SRT captions, media frames, scene shell with transitions, and hook/concept/stat/steps/compare/recap/media scene templates. Copy it for new projects; for existing projects keep their Remotion version and conventions instead.

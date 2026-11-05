@@ -23,8 +23,13 @@ def main() -> None:
 
     scenes = []
     with open(a.csv_path, newline="", encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            s, e = float(r["start_seconds"]), float(r["end_seconds"])
+        for n, r in enumerate(csv.DictReader(f), 2):
+            try:
+                s, e = float(r["start_seconds"]), float(r["end_seconds"])
+            except (KeyError, ValueError):
+                raise SystemExit(f"CSV line {n}: start_seconds and end_seconds must be numbers. Run validate_storyboard.py first.")
+            if e <= s:
+                raise SystemExit(f"CSV line {n}: end_seconds must be greater than start_seconds.")
             start, end = round(s * a.fps), round(e * a.fps)
             scenes.append({
                 "id": r["scene"].strip(),

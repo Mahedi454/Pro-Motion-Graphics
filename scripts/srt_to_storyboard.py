@@ -208,7 +208,9 @@ def _strip_punct(tok):
 
 def keywords(text, n=4, no_spaces=False):
     if no_spaces:
-        return re.sub(r"\s+", "", text)[:14]
+        # no spaces between words, so never cut inside one: take the first clause (up to punctuation or a space)
+        clause = re.split(r"[\s,;:.!?\u3001\u3002\uff0c\uff1b\uff1a\uff01\uff1f\u061f\u060c]+", text.strip())[0]
+        return clause if clause else text.strip()
     seen, out = set(), []
     for raw in text.split():
         w = _strip_punct(raw)
@@ -263,6 +265,9 @@ def main():
     cues = parse_srt(text)
     if not cues:
         sys.exit("No cues found in SRT.")
+    if cues[0]["start"] > 10:
+        print(f"WARNING: the first cue starts at {cues[0]['start']:.1f}s, so the video opens with that much time before the "
+              "first caption. If the audio starts at 0, shift the SRT; if not, this is correct.", file=sys.stderr)
     info = detect_language(" ".join(c["text"] for c in cues))
     if a.lang:
         info["code"] = a.lang

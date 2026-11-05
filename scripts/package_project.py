@@ -2,10 +2,10 @@
 """Zip a finished Remotion video project for manual rendering (no video is rendered).
 
 Usage:
-    python package_project.py <project_dir> [--name my-video] [--theme-name "Ocean Teal"]
+    python package_project.py <project_dir> [--name "My Project Name"] [--theme-name "Ocean Teal"]
                               [--out <dir>] [--no-media-copy]
 
-Creates <out>/<name>.zip containing the project (without node_modules/out/.git) plus a
+Creates <out>/<name>.zip (the ZIP and its top-level folder are both named after the project) containing the project (without node_modules/out/.git) plus a
 filled-in README-RENDER.md with unzip / npm install / render instructions.
 Refuses to run if the project is missing the essentials. Prints the zip path and size.
 """
@@ -29,6 +29,26 @@ def read(p):
         return f.read()
 
 
+def project_name(given, root):
+    """The ZIP file and the folder inside it carry the PROJECT NAME the user knows.
+
+    Priority: --name, then the name in package.json (unless it is the starter's default), then the folder name.
+    The name is kept as written (case and any language); only characters that are illegal in file names are
+    removed and spaces become hyphens, so `cd <name>` and unzip work on every system.
+    """
+    candidate = given
+    if not candidate:
+        try:
+            pj = json.loads(read(os.path.join(root, "package.json"))).get("name", "")
+            candidate = pj if pj and pj != "motion-video" else ""
+        except (OSError, ValueError):
+            candidate = ""
+    candidate = candidate or os.path.basename(root)
+    safe = re.sub(r'[<>:"/\\|?*]|[\x00-\x1f]', '', candidate)  # illegal in file names
+    safe = re.sub(r"\s+", "-", safe.strip()).strip(".-")
+    return safe or "motion-video"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("project_dir")
@@ -43,7 +63,7 @@ def main():
     if missing:
         sys.exit("Project is incomplete, missing: " + ", ".join(missing))
 
-    name = re.sub(r"[^a-z0-9-]+", "-", (a.name or os.path.basename(root)).lower()).strip("-") or "motion-video"
+    name = project_name(a.name, root)
     out_dir = os.path.abspath(a.out or os.path.join(root, ".."))
     os.makedirs(out_dir, exist_ok=True)
     zip_path = os.path.join(out_dir, name + ".zip")

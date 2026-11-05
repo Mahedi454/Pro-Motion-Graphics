@@ -32,9 +32,10 @@
 - [ ] Composition dimensions, fps, and duration are correct.
 - [ ] Every asset path resolves.
 - [ ] Type/build checks pass where available.
-- [ ] Preview rendered and inspected, or limitation disclosed.
+- [ ] Still frames inspected (several per scene type and per language/direction), or limitation disclosed.
 - [ ] No video was rendered or delivered; the ZIP contains the project and `README-RENDER.md`.
 - [ ] ZIP builds with `scripts/package_project.py` and lists no `node_modules` or `out/`.
+- [ ] The theme options were presented as 3 light / 3 dark / 4 colour, each colour's role was explained, and the user's choice (or the stated default) was applied.
 - [ ] Chosen theme applied (`theme.config.ts`) and every colour comes from `bg/text/accent/hero`.
-- [ ] Output filename and format are correct.
+- [ ] The ZIP file and the folder inside it are named after the project, and the `production/` notes are inside.
 - [ ] Source project and README are included where requested.

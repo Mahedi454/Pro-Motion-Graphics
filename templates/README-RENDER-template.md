@@ -14,7 +14,7 @@ npm -v
 ## 2. Unzip the project
 - **Windows:** right-click the ZIP -> **Extract All...** (not "open"; extract it to a normal folder such as `Documents`).
 - **macOS:** double-click the ZIP.
-- **Linux / terminal:** `unzip {{ZIP_NAME}} -d {{PROJECT_NAME}}`
+- **Linux / terminal:** `unzip {{ZIP_NAME}}` (it creates the `{{PROJECT_NAME}}` folder for you)
 
 Open a terminal inside the extracted project folder (the one that contains `package.json`):
 - **Windows:** open the folder, click the address bar, type `cmd`, press Enter.

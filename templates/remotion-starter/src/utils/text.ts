@@ -48,12 +48,12 @@ export const joinWords = (w: string[]): string => w.join(noSpaces ? '' : ' ');
 export const sentences = (text: string): string[] =>
   (text.match(END_RE) ?? [text]).map((s) => s.trim()).filter(Boolean);
 
-/** Shorten to at most `n` words (or about 2n characters for scripts without spaces). */
+/** Shorten to at most `n` words (about 1.5n segmented words for scripts without spaces). */
 export const shorten = (text: string, n = 8): string => {
   const c = clean(text);
   if (noSpaces) {
-    const chars = Array.from(c);
-    return chars.length <= n * 2 ? c : chars.slice(0, n * 2).join('') + '…';
+    const w = words(c); // the segmenter keeps words whole (Thai, Chinese, Japanese)
+    return w.length <= n * 1.5 ? c : w.slice(0, Math.round(n * 1.5)).join('') + '…';
   }
   const w = c.split(/\s+/);
   return w.length <= n ? w.join(' ') : w.slice(0, n).join(' ') + '…';
